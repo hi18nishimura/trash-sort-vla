@@ -9,6 +9,10 @@ infeasibility. A single one of these assertions would have caught it.
 """
 import pytest
 
+import pytest
+
+pytest.importorskip("mcp", reason="MCP extra not installed (pip install -e '.[mcp]')")
+
 from tamp import mcp_server as M
 
 
