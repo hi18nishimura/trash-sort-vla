@@ -1,0 +1,7 @@
+# Surfaces for the replan benchmark: tray_far is 2.5 m away (unreachable). Which
+# tray the planner tries first is planner-internal; the guarantee is it can only
+# ever LAND on tray_near (geometry vetoes tray_far).
+surfaces:
+  - {id: start,  pose: [0.45, 0.00, 0.40, 1, 0, 0, 0], dims: [0.4, 0.4, 0.02], class: table}
+  - {id: tray_near, pose: [0.55, 0.20, 0.40, 1, 0, 0, 0], dims: [0.2, 0.2, 0.02], class: tray}
+  - {id: tray_far, pose: [2.50, 0.00, 0.40, 1, 0, 0, 0], dims: [0.2, 0.2, 0.02], class: tray}

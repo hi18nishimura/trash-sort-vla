@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "tamp-robot": {
+      "command": ".venv/bin/python",
+      "args": ["-m", "tamp.mcp_server"]
+    }
+  }
+}

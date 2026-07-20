@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "panda-tamp"
+version = "0.2.0"
+description = "Closed-loop Task and Motion Planning for a Franka Panda: PDDL symbolic planning bridged to real geometry, with ROS 2 / MoveIt 2 / Gazebo execution, YOLOv8 perception, and language-grounded goals."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Manas Reddy Arumalla" }]
+keywords = [
+    "task-and-motion-planning", "tamp", "pddl", "motion-planning",
+    "manipulation", "robotics", "ros2", "moveit2", "gazebo", "franka-panda",
+    "neuro-symbolic",
+]
+
+# Core (ROS-free) dependencies — symbolic planning + geometry. This is all the
+# offline demos and the unit suite need.
+dependencies = [
+    "unified-planning[fast-downward]>=1.1.0",  # PDDL modeling + Fast Downward
+    "pyyaml>=6.0",                              # goal specs
+    "numpy>=1.24,<2",                           # pinned <2: required by pykin
+    "pykin",                                    # FK / Jacobian (DLS IK is ours)
+    "trimesh",                                  # mesh collision + viz
+]
+
+[project.optional-dependencies]
+# Perception front-end (pulls torch — heavy; not needed for the core/tests).
+perception = [
+    "ultralytics",                             # YOLOv8 detection
+    "opencv-python-headless",                  # image handling
+]
+# Natural-language goal grounding via a hosted LLM API (optional — the grounder
+# falls back to a deterministic grammar parser when no backend is available).
+nl = [
+    "anthropic>=0.40",
+]
+# Model Context Protocol server: expose the planner to any MCP client/agent.
+# `python -m tamp.mcp_server` (stdio).
+mcp = [
+    "mcp>=1.10",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+# `tamp-offline --scene stack3` — the offline TAMP demo, no ROS/sim.
+tamp-offline = "tamp.cli:offline_main"
+# `tamp-command "stack A on B on C"` — natural-language -> goal -> plan.
+tamp-command = "tamp.cli:command_main"
+
+[project.urls]
+Repository = "https://github.com/Manas-arumalla/panda-tamp"
+
+# Flat layout: ship the importable packages, skip tests/ros2_ws/scripts/benchmarks-data.
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tamp*", "benchmarks*"]
+exclude = ["tests*", "ros2_ws*", "docs*", "reference_TAMP*"]
+
+[tool.pytest.ini_options]
+# pythonpath = ["."] lets the suite run even from a bare checkout (no install);
+# after `pip install -e .` it is redundant but harmless. Kills the old PYTHONPATH=. .
+pythonpath = ["."]
+testpaths = ["tests/unit", "tests/integration"]
+# Disable ROS's launch pytest plugins: when the user's shell sources ROS,
+# /opt/ros/.../site-packages lands on PYTHONPATH and pytest auto-loads
+# launch_testing / launch_ros, which need `lark` (not in our venv) and would
+# break collection. `-p no:NAME` is a safe no-op when those plugins are absent
+# (e.g. in CI), so the suite runs cleanly with or without ROS sourced.
+addopts = "-q -p no:launch_testing -p no:launch_ros"
+
+[tool.coverage.run]
+source = ["tamp"]
+omit = ["*/viz/*", "tamp/cli.py"]   # thin entry-point wrappers, not unit-tested

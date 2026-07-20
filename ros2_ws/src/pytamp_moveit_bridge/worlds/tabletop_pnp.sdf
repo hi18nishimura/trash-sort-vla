@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!-- Integrated YOLO pick-and-place world: table + a cup + a ball (YOLO-COCO
+     detectable) + a tray (place target) + an overhead RGBD camera. The Panda is
+     spawned separately by the launch. set_pose service (UserCommands) is used by
+     grasp_manager for kinematic grasp-attach. -->
+<sdf version="1.8">
+  <world name="tabletop">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light type="directional" name="sun"><cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose><diffuse>1 1 1 1</diffuse><specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.3 0.2 -0.9</direction></light>
+    <light type="point" name="fill"><pose>0.5 0 1.4 0 0 0</pose>
+      <diffuse>0.6 0.6 0.6 1</diffuse><attenuation><range>6</range></attenuation></light>
+
+    <model name="ground_plane"><static>true</static><link name="link">
+      <collision name="c"><geometry><plane><normal>0 0 1</normal></plane></geometry></collision>
+      <visual name="v"><geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+        <material><ambient>0.85 0.85 0.85 1</ambient><diffuse>0.85 0.85 0.85 1</diffuse></material></visual>
+    </link></model>
+
+    <model name="table"><static>true</static><pose>0.5 0 0.40 0 0 0</pose><link name="link">
+      <collision name="c"><geometry><box><size>0.8 0.8 0.02</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.8 0.8 0.02</size></box></geometry>
+        <material><ambient>0.35 0.27 0.18 1</ambient><diffuse>0.45 0.33 0.2 1</diffuse></material></visual>
+    </link></model>
+
+    <!-- tray = place target on the table -->
+    <model name="tray"><static>true</static><pose>0.55 0.0 0.415 0 0 0</pose><link name="link">
+      <collision name="c"><geometry><box><size>0.34 0.34 0.01</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.34 0.34 0.01</size></box></geometry>
+        <material><ambient>0.1 0.1 0.5 1</ambient><diffuse>0.15 0.15 0.7 1</diffuse></material></visual>
+    </link></model>
+
+    <!-- cup (short cylinder) on the table -->
+    <model name="cup"><pose>0.45 0.20 0.455 0 0 0</pose><link name="link">
+      <inertial><mass>0.05</mass><inertia><ixx>5e-5</ixx><iyy>5e-5</iyy><izz>5e-5</izz>
+        <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="c"><geometry><cylinder><radius>0.025</radius><length>0.07</length></cylinder></geometry>
+        <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+      <visual name="v"><geometry><cylinder><radius>0.025</radius><length>0.07</length></cylinder></geometry>
+        <material><ambient>0.85 0.85 0.85 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material></visual>
+    </link></model>
+
+    <!-- ball on the table -->
+    <model name="cup2"><pose>0.48 -0.18 0.455 0 0 0</pose><link name="link">
+      <inertial><mass>0.05</mass><inertia><ixx>5e-5</ixx><iyy>5e-5</iyy><izz>5e-5</izz>
+        <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="c"><geometry><cylinder><radius>0.025</radius><length>0.07</length></cylinder></geometry>
+        <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+      <visual name="v"><geometry><cylinder><radius>0.025</radius><length>0.07</length></cylinder></geometry>
+        <material><ambient>0.1 0.5 0.85 1</ambient><diffuse>0.1 0.55 0.9 1</diffuse></material></visual>
+    </link></model>
+
+    <!-- overhead RGBD camera viewing the table (behind+above, ~47deg down) -->
+    <model name="rgbd_cam"><static>true</static><pose>0.0 0 1.0 0 0.82 0</pose><link name="link">
+      <sensor name="rgbd" type="rgbd_camera"><update_rate>15</update_rate><topic>camera</topic>
+        <camera><horizontal_fov>1.2</horizontal_fov>
+          <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+          <clip><near>0.1</near><far>10.0</far></clip>
+          <optical_frame_id>camera_optical</optical_frame_id></camera>
+      </sensor>
+    </link></model>
+  </world>
+</sdf>

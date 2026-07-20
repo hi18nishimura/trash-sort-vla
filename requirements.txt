@@ -1,0 +1,22 @@
+# --- Phase 1 offline core (pure Python, no ROS) ---
+unified-planning[fast-downward]>=1.1.0   # PDDL modeling + Fast Downward engine
+pyyaml>=6.0                              # goal specs
+numpy>=1.24                              # geometry math
+
+# --- Geometry / motion (M2+) ---
+pykin                                    # robot kinematics / IK (FK + Jacobian)
+trimesh                                  # mesh collision + visualization
+# numpy<2 is required by pykin (see top); pytamp itself is NOT pip-installed here
+# (it needs pygraphviz/graphviz-dev); we use its building blocks (pykin+trimesh).
+# z3-solver                              # optional symbolic constraint checking
+
+# --- Perception (YOLOv8) ---
+ultralytics                              # YOLOv8-COCO detection (pulls torch)
+opencv-python-headless                   # image handling for the perception node
+
+# --- Dev / test ---
+pytest>=7.0
+pytest-cov>=4.0
+
+# NOTE: ROS 2 (Humble), MoveIt 2, Gazebo, ultralytics(YOLOv8) are installed via the
+# ROS 2 workspace / system, not pip. See docs/ros_integration.md.

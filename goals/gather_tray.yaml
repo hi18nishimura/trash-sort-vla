@@ -1,0 +1,4 @@
+# Gather every perceived object onto the tray (the Gazebo pick-and-place goal).
+# The ROS pipeline publishes this spec on /planning_goal as JSON.
+type: gather
+surface: tray

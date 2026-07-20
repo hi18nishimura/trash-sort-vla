@@ -1,0 +1,332 @@
+<?xml version="1.0" ?>
+<robot name="panda" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <link name="world"/>
+    <joint name="connect_root_and_world" type="fixed">
+      <child link="panda_link0" />
+      <parent link="world" />
+      <origin xyz="0 0 0" rpy="0 0 0" />    
+    </joint> 
+
+    <link name="panda_link0">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link0.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link0.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="50"/> 
+		  <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.4" />
+	    </inertial>
+    </link>
+    <link name="panda_link1">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link1.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link1.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint1" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973" />
+        <origin rpy="0 0 0" xyz="0 0 0.333" />
+        <parent link="panda_link0" />
+        <child link="panda_link1" />
+        <axis xyz="0 0 1" />
+        <limit effort="87" lower="-2.9671" upper="2.9671" velocity="2.3925" />
+    </joint>
+    <link name="panda_link2">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link2.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link2.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint2" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-1.7628" soft_upper_limit="1.7628" />
+        <origin rpy="-1.57079632679 0 0" xyz="0 0 0" />
+        <parent link="panda_link1" />
+        <child link="panda_link2" />
+        <axis xyz="0 0 1" />
+        <limit effort="87" lower="-1.8326" upper="1.8326" velocity="2.3925" />
+    </joint>
+    <link name="panda_link3">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link3.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link3.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint3" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973" />
+        <origin rpy="1.57079632679 0 0" xyz="0 -0.316 0" />
+        <parent link="panda_link2" />
+        <child link="panda_link3" />
+        <axis xyz="0 0 1" />
+        <limit effort="87" lower="-2.9671" upper="2.9671" velocity="2.3925" />
+    </joint>
+    <link name="panda_link4">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link4.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link4.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint4" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-3.0718" soft_upper_limit="0.0175" />
+        <origin rpy="1.57079632679 0 0" xyz="0.0825 0 0" />
+        <parent link="panda_link3" />
+        <child link="panda_link4" />
+        <axis xyz="0 0 1" />
+        <limit effort="87" lower="-3.1416" upper="0.0873" velocity="2.3925" />
+    </joint>
+    <link name="panda_link5">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link5.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link5.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint5" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973" />
+        <origin rpy="-1.57079632679 0 0" xyz="-0.0825 0.384 0" />
+        <parent link="panda_link4" />
+        <child link="panda_link5" />
+        <axis xyz="0 0 1" />
+        <limit effort="12" lower="-2.9671" upper="2.9671" velocity="2.8710" />
+    </joint>
+    <link name="panda_link6">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link6.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link6.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint6" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-0.0175" soft_upper_limit="3.7525" />
+        <origin rpy="1.57079632679 0 0" xyz="0 0 0" />
+        <parent link="panda_link5" />
+        <child link="panda_link6" />
+        <axis xyz="0 0 1" />
+        <limit effort="12" lower="-0.0873" upper="3.8223" velocity="2.8710" />
+    </joint>
+    <link name="panda_link7">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/link7.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/link7.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.32"/>
+		  <mass value="0.5"/> 
+		  <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.002" />
+	    </inertial>
+    </link>
+    <joint name="panda_joint7" type="revolute">
+        <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-2.8973" soft_upper_limit="2.8973" />
+        <origin rpy="1.57079632679 0 0" xyz="0.088 0 0" />
+        <parent link="panda_link6" />
+        <child link="panda_link7" />
+        <axis xyz="0 0 1" />
+        <limit effort="12" lower="-2.9671" upper="2.9671" velocity="2.8710" />
+    </joint>
+    <link name="panda_link8" />
+    <joint name="panda_joint8" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.107" />
+        <parent link="panda_link7" />
+        <child link="panda_link8" />
+        <axis xyz="0 0 0" />
+    </joint>
+    <joint name="panda_hand_joint" type="fixed">
+        <parent link="panda_link8" />
+        <child link="panda_hand" />
+        <origin rpy="0 0 -0.785398163397" xyz="0 0 0" />
+    </joint>
+    <link name="panda_hand">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/hand.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/hand.stl" />
+            </geometry>
+        </collision>
+        <!-- REAL Franka inertials for hand + fingers (franka_description values).
+             These three links previously carried a COPY-PASTED ARM-LINK inertial
+             (mass 0.5 kg, COM 0.32 m from the link origin!). Under bullet-featherstone
+             (exact articulated-body dynamics) each finger was a half-kilo pendulum on
+             a lever arm bolted to a prismatic joint: commanding the pair to CLOSE made
+             them SEE-SAW through the palm coupling (captured: f1 driven OPEN to 0.042
+             while f2 closed to 0.029), which caused every "finger moved the wrong way"
+             failure. DART's solver happened to mask this; featherstone simulates the
+             garbage faithfully. -->
+	    <inertial>
+		  <origin xyz="-0.01 0 0.03"/>
+		  <mass value="0.73"/>
+		  <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.0025" iyz="0" izz="0.0017" />
+	    </inertial>
+    </link>
+    <link name="panda_leftfinger">
+        <visual>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/finger.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/finger.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.02"/>
+		  <mass value="0.015"/>
+		  <inertia ixx="2.4e-6" ixy="0" ixz="0" iyy="2.4e-6" iyz="0" izz="7.5e-7" />
+	    </inertial>
+    </link>
+    <link name="panda_rightfinger">
+        <visual>
+            <origin rpy="0 0 3.14159265359" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://robot_description/meshes/visual/finger.dae" />
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 0 3.14159265359" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://robot_description/meshes/collision/finger.stl" />
+            </geometry>
+        </collision>
+	    <inertial>
+		  <origin xyz="0 0 0.02"/>
+		  <mass value="0.015"/>
+		  <inertia ixx="2.4e-6" ixy="0" ixz="0" iyy="2.4e-6" iyz="0" izz="7.5e-7" />
+	    </inertial>
+    </link>
+    <joint name="panda_finger_joint1" type="prismatic">
+        <parent link="panda_hand" />
+        <child link="panda_leftfinger" />
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0584" />
+        <axis xyz="0 1 0" />
+        <!-- effort 40 N (the real Panda's value). A 3 N experiment (an anti-fling
+             attempt) FAILED BOTH WAYS: it did not reduce flings (the fling is weld-
+             violation discharge at detach, effort-insensitive — see AUDIT Phase 1.7),
+             and it introduced a worse failure: a laterally off-centre descent wedges
+             the cup against a finger's inner face and the contact force BACK-DRIVES
+             the 3 N motor outward into the 0.04 hard limit, where bullet pins it —
+             the fingers then moved +2 mm OUTWARD during a CLOSE command and every
+             later command was ignored (instrumented capture, 3 of 4 batch trials).
+             40 N cannot be back-driven by a 50 g cup. -->
+        <limit effort="40" lower="0.0" upper="0.045" velocity="0.2" />
+        <!-- upper is 0.045, 5 mm PAST the Panda's real 0.04 travel: bullet-featherstone
+             pins a prismatic joint that reaches its hard limit (gz-sim #2785) and it
+             then ignores position commands. All software targets stay <= 0.038 (the
+             executor's GRIPPER_OPEN), so with the physics stop at 0.045 the joint can
+             never reach it and can never pin. MoveIt does not plan finger motions in
+             this pipeline, so the wider limit affects physics only. -->
+    </joint>
+    <joint name="panda_finger_joint2" type="prismatic">
+        <parent link="panda_hand" />
+        <child link="panda_rightfinger" />
+        <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0584" />
+        <axis xyz="0 -1 0" />
+        <!-- effort 40 N (the real Panda's value). A 3 N experiment (an anti-fling
+             attempt) FAILED BOTH WAYS: it did not reduce flings (the fling is weld-
+             violation discharge at detach, effort-insensitive — see AUDIT Phase 1.7),
+             and it introduced a worse failure: a laterally off-centre descent wedges
+             the cup against a finger's inner face and the contact force BACK-DRIVES
+             the 3 N motor outward into the 0.04 hard limit, where bullet pins it —
+             the fingers then moved +2 mm OUTWARD during a CLOSE command and every
+             later command was ignored (instrumented capture, 3 of 4 batch trials).
+             40 N cannot be back-driven by a 50 g cup. -->
+        <limit effort="40" lower="0.0" upper="0.045" velocity="0.2" />
+        <!-- upper is 0.045, 5 mm PAST the Panda's real 0.04 travel: bullet-featherstone
+             pins a prismatic joint that reaches its hard limit (gz-sim #2785) and it
+             then ignores position commands. All software targets stay <= 0.038 (the
+             executor's GRIPPER_OPEN), so with the physics stop at 0.045 the joint can
+             never reach it and can never pin. MoveIt does not plan finger motions in
+             this pipeline, so the wider limit affects physics only. -->
+        <!-- No <mimic>: Gazebo/DART cannot honor mimic constraints, and ros2_control
+             forbids a command interface on a mimic joint (gz_ros2_control threw a
+             std::runtime_error at startup). joint2 is now an independently commanded
+             joint; moveit_executor drives both fingers to the same target. -->
+    </joint>
+    
+    <!-- https://github.com/ros-controls/gazebo_ros2_control/issues/173#issuecomment-1536332488 -->
+    <joint name="panda_finger_joint2_mimic" type="fixed">
+        <parent link="panda_hand" />
+        <child link="random" />
+    </joint>
+    <link name="random"/>
+</robot>

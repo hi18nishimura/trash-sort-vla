@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Test / coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Vendored reference (clone separately)
+reference_TAMP/
+
+# Generated PDDL problems (keep examples only)
+pddl/problems/*.pddl
+!pddl/problems/example_*.pddl
+
+# Results / artifacts
+results/*
+!results/.gitkeep
+*.mp4
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# ROS 2
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Model weights (auto-downloaded by ultralytics on first run)
+*.pt
+
+# Local development artifacts — working notes, planning/audit documents, and
+# one-off debugging harnesses. Kept on disk, not part of the repository.
+CLAUDE.md
+AUDIT_AND_ROADMAP.md
+CHANGELOG.md
+docs/DECISIONS.md
+docs/STATUS.md
+docs/images/architecture_pipeline.jpeg
+docs/images/architecture_planning_stack.jpeg
+scripts/debug_*
+assets/
+.claude/

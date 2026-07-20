@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- Gazebo (gz-sim8) tabletop world for real pick-and-place:
+     a thin static table + 3 dynamic blocks (A,B,C) at the scene_stack3 poses.
+     UserCommands system provides /world/tabletop/set_pose (used by grasp_manager
+     for kinematic grasp-attach). SceneBroadcaster publishes model poses. -->
+<sdf version="1.8">
+  <world name="tabletop">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+
+    <gravity>0 0 -9.81</gravity>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="c"><geometry><plane><normal>0 0 1</normal></plane></geometry></collision>
+        <visual name="v"><geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Thin static table top at z=0.41 -->
+    <model name="table">
+      <static>true</static>
+      <pose>0.5 0 0.40 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.8 0.8 0.02</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.8 0.8 0.02</size></box></geometry>
+          <material><ambient>0.4 0.3 0.2 1</ambient><diffuse>0.5 0.35 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Blocks A, B, C (0.05 cubes) on the table -->
+    <model name="A">
+      <pose>0.40 -0.15 0.435 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.05</mass><inertia><ixx>2.1e-5</ixx><iyy>2.1e-5</iyy><izz>2.1e-5</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+        <collision name="c"><geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.8 0.2 0.2 1</ambient><diffuse>0.9 0.2 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="B">
+      <pose>0.50 0 0.435 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.05</mass><inertia><ixx>2.1e-5</ixx><iyy>2.1e-5</iyy><izz>2.1e-5</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+        <collision name="c"><geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.2 0.6 0.2 1</ambient><diffuse>0.2 0.8 0.2 1</diffuse></material></visual>
+      </link>
+    </model>
+    <model name="C">
+      <pose>0.60 0.15 0.435 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.05</mass><inertia><ixx>2.1e-5</ixx><iyy>2.1e-5</iyy><izz>2.1e-5</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+        <collision name="c"><geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.2 0.4 0.8 1</ambient><diffuse>0.2 0.4 0.9 1</diffuse></material></visual>
+      </link>
+    </model>
+  </world>
+</sdf>

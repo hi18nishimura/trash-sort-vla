@@ -1,0 +1,4 @@
+# Stack the three blocks of the `stack3` scene into a tower: A on B on C.
+# Load with:  tamp-offline --scene stack3   (this is that demo's goal spec)
+type: stack
+order: [A, B, C]

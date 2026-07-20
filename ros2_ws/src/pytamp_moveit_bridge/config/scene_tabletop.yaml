@@ -1,0 +1,5 @@
+# Support surfaces injected into /world_state (perception reports objects only).
+# pose: [x, y, z, qw, qx, qy, qz]   dims: [dx, dy, dz]  (metres, panda_link0 frame)
+surfaces:
+  - {id: table, pose: [0.5, 0.0, 0.40, 1, 0, 0, 0], dims: [0.8, 0.8, 0.02], class: table}
+  - {id: tray,  pose: [0.55, 0.25, 0.40, 1, 0, 0, 0], dims: [0.2, 0.2, 0.02], class: tray}

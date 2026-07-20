@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="panda_gazebo_ros2_control" params="initial_positions_file">
+        <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
+
+        <ros2_control name="panda_gazebo" type="system">
+            <hardware>
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            </hardware>
+
+            <joint name="panda_joint1">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint1']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="panda_joint2">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint2']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="panda_joint3">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint3']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="panda_joint4">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint4']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="panda_joint5">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint5']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="panda_joint6">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint6']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="panda_joint7">
+                <command_interface name="position"/>
+                <state_interface name="position">
+                  <param name="initial_value">${initial_positions['panda_joint7']}</param>
+                </state_interface>
+                <state_interface name="velocity">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            
+            <joint name="panda_finger_joint1">
+                <command_interface name="position" />
+                <state_interface name="position">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <!-- panda_finger_joint2 was a `mimic` of joint1, but Gazebo's default
+                 DART physics engine does NOT support mimic constraints (it logs
+                 "does not support mimic constraints, so no constraint will be
+                 created" and drops it). The right finger was therefore an
+                 UNCOMMANDED, frozen joint: only the left finger actuated, and it
+                 stalled when it collided with the immobile right finger. So the
+                 "grasp" was one finger touching + the DetachableJoint weld.
+                 Give joint2 its own position command interface and drive both
+                 fingers together (see moveit_executor `_gripper`) — a real
+                 two-finger pinch that does not depend on mimic support. -->
+            <joint name="panda_finger_joint2">
+                <command_interface name="position" />
+                <state_interface name="position">
+                  <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+        </ros2_control>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,5 @@
+# Surfaces for the YOLO pick-and-place demo. Objects come from YOLO /world_state;
+# 'workspace' is the default surface they rest on; 'tray' is the place target.
+surfaces:
+  - {id: workspace, pose: [0.5, 0.0, 0.40, 1, 0, 0, 0], dims: [0.8, 0.8, 0.02], class: table}
+  - {id: tray,      pose: [0.55, 0.0, 0.415, 1, 0, 0, 0], dims: [0.34, 0.34, 0.01], class: tray}
