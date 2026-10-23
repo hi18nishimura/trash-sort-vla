@@ -28,9 +28,9 @@ if not _REPO:
 if _REPO and _REPO not in sys.path:
     sys.path.insert(0, _REPO)
 
-from benchmarks import scene_stack3, scene_replan, scene_pnp
+from benchmarks import scene_stack3, scene_replan, scene_pnp, scene_trash
 
-SCENES = {"stack3": scene_stack3, "replan": scene_replan, "pnp": scene_pnp}
+SCENES = {"stack3": scene_stack3, "replan": scene_replan, "pnp": scene_pnp, "trash": scene_trash}
 
 
 class MockPerception(Node):

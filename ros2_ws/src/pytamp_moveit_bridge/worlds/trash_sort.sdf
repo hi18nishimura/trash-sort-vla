@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!-- Trash sorting world: table + 3 trash items (can / bottle / paper cup)
+     + 3 colored bins (flat trays). Physics settings are copied from
+     tabletop_pnp_nocam.sdf (tuned by the original author).
+     Items sit at x=0.45 (the author's proven-reachable distance). -->
+<sdf version="1.11">
+  <world name="tabletop">
+    <physics name="default" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <bullet><solver><iters>200</iters></solver></bullet>
+    </physics>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+
+    <light type="directional" name="sun"><cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose><diffuse>1 1 1 1</diffuse><specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.3 0.2 -0.9</direction></light>
+    <light type="point" name="fill"><pose>0.5 0 1.4 0 0 0</pose>
+      <diffuse>0.6 0.6 0.6 1</diffuse><attenuation><range>6</range></attenuation></light>
+
+    <model name="ground_plane"><static>true</static><link name="link">
+      <collision name="c"><geometry><plane><normal>0 0 1</normal></plane></geometry></collision>
+      <visual name="v"><geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+        <material><ambient>0.85 0.85 0.85 1</ambient><diffuse>0.85 0.85 0.85 1</diffuse></material></visual>
+    </link></model>
+
+    <model name="table"><static>true</static><pose>0.5 0 0.40 0 0 0</pose><link name="link">
+      <collision name="c"><geometry><box><size>0.8 0.8 0.02</size></box></geometry><surface><friction>
+        <bullet><friction>0.4</friction><friction2>0.4</friction2></bullet>
+      </friction></surface></collision>
+      <visual name="v"><geometry><box><size>0.8 0.8 0.02</size></box></geometry>
+        <material><ambient>0.35 0.27 0.18 1</ambient><diffuse>0.45 0.33 0.2 1</diffuse></material></visual>
+    </link></model>
+
+    <!-- ===== Bins (flat trays, 12 cm square) at x=0.64 ===== -->
+    <model name="bin_blue"><static>true</static><pose>0.56 0.13 0.415 0 0 0</pose><link name="link">
+      <collision name="c"><geometry><box><size>0.10 0.10 0.01</size></box></geometry><surface><friction>
+        <bullet><friction>0.4</friction><friction2>0.4</friction2></bullet>
+      </friction></surface></collision>
+      <visual name="v"><geometry><box><size>0.10 0.10 0.01</size></box></geometry>
+        <material><ambient>0.1 0.2 0.6 1</ambient><diffuse>0.15 0.3 0.85 1</diffuse></material></visual>
+    </link></model>
+
+    <model name="bin_green"><static>true</static><pose>0.56 0.0 0.415 0 0 0</pose><link name="link">
+      <collision name="c"><geometry><box><size>0.10 0.10 0.01</size></box></geometry><surface><friction>
+        <bullet><friction>0.4</friction><friction2>0.4</friction2></bullet>
+      </friction></surface></collision>
+      <visual name="v"><geometry><box><size>0.10 0.10 0.01</size></box></geometry>
+        <material><ambient>0.1 0.45 0.15 1</ambient><diffuse>0.15 0.65 0.2 1</diffuse></material></visual>
+    </link></model>
+
+    <model name="bin_orange"><static>true</static><pose>0.56 -0.13 0.415 0 0 0</pose><link name="link">
+      <collision name="c"><geometry><box><size>0.10 0.10 0.01</size></box></geometry><surface><friction>
+        <bullet><friction>0.4</friction><friction2>0.4</friction2></bullet>
+      </friction></surface></collision>
+      <visual name="v"><geometry><box><size>0.10 0.10 0.01</size></box></geometry>
+        <material><ambient>0.6 0.3 0.05 1</ambient><diffuse>0.95 0.5 0.1 1</diffuse></material></visual>
+    </link></model>
+
+    <!-- ===== Trash items at x=0.45: same size/physics as the author's cup ===== -->
+    <model name="can"><pose>0.45 0.20 0.445 0 0 0</pose><link name="link">
+      <inertial><mass>0.05</mass><inertia><ixx>5e-5</ixx><iyy>5e-5</iyy><izz>5e-5</izz>
+        <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="c"><geometry><cylinder><radius>0.020</radius><length>0.07</length></cylinder></geometry>
+        <surface><friction>
+          <bullet><friction>3.0</friction><friction2>3.0</friction2>
+            <rolling_friction>0.1</rolling_friction></bullet>
+          <torsional><coefficient>1.0</coefficient></torsional>
+        </friction></surface></collision>
+      <visual name="v"><geometry><cylinder><radius>0.020</radius><length>0.07</length></cylinder></geometry>
+        <material><ambient>0.6 0.6 0.65 1</ambient><diffuse>0.75 0.75 0.8 1</diffuse>
+          <specular>0.9 0.9 0.9 1</specular></material></visual>
+    </link></model>
+
+    <model name="bottle"><pose>0.45 0.0 0.445 0 0 0</pose><link name="link">
+      <inertial><mass>0.05</mass><inertia><ixx>5e-5</ixx><iyy>5e-5</iyy><izz>5e-5</izz>
+        <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="c"><geometry><cylinder><radius>0.020</radius><length>0.07</length></cylinder></geometry>
+        <surface><friction>
+          <bullet><friction>3.0</friction><friction2>3.0</friction2>
+            <rolling_friction>0.1</rolling_friction></bullet>
+          <torsional><coefficient>1.0</coefficient></torsional>
+        </friction></surface></collision>
+      <visual name="v"><geometry><cylinder><radius>0.020</radius><length>0.07</length></cylinder></geometry>
+        <material><ambient>0.4 0.7 0.85 1</ambient><diffuse>0.55 0.85 1.0 1</diffuse></material></visual>
+    </link></model>
+
+    <model name="paper"><pose>0.45 -0.20 0.445 0 0 0</pose><link name="link">
+      <inertial><mass>0.05</mass><inertia><ixx>5e-5</ixx><iyy>5e-5</iyy><izz>5e-5</izz>
+        <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
+      <collision name="c"><geometry><cylinder><radius>0.020</radius><length>0.07</length></cylinder></geometry>
+        <surface><friction>
+          <bullet><friction>3.0</friction><friction2>3.0</friction2>
+            <rolling_friction>0.1</rolling_friction></bullet>
+          <torsional><coefficient>1.0</coefficient></torsional>
+        </friction></surface></collision>
+      <visual name="v"><geometry><cylinder><radius>0.020</radius><length>0.07</length></cylinder></geometry>
+        <material><ambient>0.85 0.85 0.85 1</ambient><diffuse>1.0 1.0 1.0 1</diffuse></material></visual>
+    </link></model>
+  </world>
+</sdf>

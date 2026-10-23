@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- Minimal Gazebo (Harmonic / gz-sim8) description for the Panda physics demo.
+     Reuses the robot_description URDF (world-fixed base, inertials, collisions)
+     and the panda_moveit_config gz_ros2_control block. No camera / sensors
+     (mock perception is used), which avoids the stale Ignition sensors plugin. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
+  <xacro:arg name="initial_positions_file"
+             default="$(find panda_moveit_config)/config/initial_positions.yaml" />
+
+  <!-- Panda arm + hand (has world->panda_link0 fixed joint, inertia, collision) -->
+  <xacro:include filename="$(find robot_description)/urdf/panda.urdf" />
+
+  <!-- ros2_control hardware interface (gz_ros2_control/GazeboSimSystem) -->
+  <xacro:include filename="$(find panda_moveit_config)/config/panda.gazebo_ros2_control.xacro" />
+  <xacro:panda_gazebo_ros2_control initial_positions_file="$(arg initial_positions_file)"/>
+
+  <!-- Gazebo system plugins: ros2_control + joint state publishing -->
+  <gazebo>
+    <plugin filename="gz_ros2_control-system"
+            name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find panda_moveit_config)/config/ros2_controllers.yaml</parameters>
+    </plugin>
+    <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+    </plugin>
+
+    <!-- REAL grasping: a detachable fixed joint per graspable object.
+         Previously the "grasp" was pose-driven — grasp_manager re-wrote the object's
+         pose via the set_pose service on a 10 Hz timer, but each tick spawned a `gz
+         service` SUBPROCESS (~100 ms), so it effectively ran at ~1 Hz. The object
+         visibly stuttered a full step behind the gripper, and because set_pose does
+         not disable gravity or zero velocity, the object FREE-FELL between updates
+         and was teleported back up. That is the "glitching / falling in between" you
+         see.
+
+         With a DetachableJoint the object is rigidly joined to the wrist and carried by
+         the physics engine itself: no teleport, no stutter, no free-fall, and the object
+         keeps real dynamics. grasp_manager publishes Empty on the attach topic to grasp
+         and on the detach topic to release.
+
+         parent_link is panda_link7, NOT panda_hand: sdformat's URDF->SDF conversion
+         performs fixed-joint lumping, so panda_link8 / panda_hand / the fingers' fixed
+         children are merged into panda_link7 and `panda_hand` does not exist as an SDF
+         link ("Link with name panda_hand not found in model panda"). panda_link7 is
+         rigidly welded to the hand anyway, and the joint is created at the CURRENT
+         relative pose, so the object stays exactly where it was grasped.
+
+         NOTE: the plugin attaches at world load, so grasp_manager detaches both at
+         startup to begin with an empty gripper. -->
+    <plugin filename="gz-sim-detachable-joint-system"
+            name="gz::sim::systems::DetachableJoint">
+      <parent_link>panda_link7</parent_link>
+      <child_model>can</child_model>
+      <child_link>link</child_link>
+      <attach_topic>/grasp/can/attach</attach_topic>
+      <detach_topic>/grasp/can/detach</detach_topic>
+      <suppress_child_warning>true</suppress_child_warning>
+    </plugin>
+    <plugin filename="gz-sim-detachable-joint-system"
+            name="gz::sim::systems::DetachableJoint">
+      <parent_link>panda_link7</parent_link>
+      <child_model>bottle</child_model>
+      <child_link>link</child_link>
+      <attach_topic>/grasp/bottle/attach</attach_topic>
+      <detach_topic>/grasp/bottle/detach</detach_topic>
+      <suppress_child_warning>true</suppress_child_warning>
+    </plugin>
+      <plugin filename="gz-sim-detachable-joint-system"
+            name="gz::sim::systems::DetachableJoint">
+      <parent_link>panda_link7</parent_link>
+      <child_model>paper</child_model>
+      <child_link>link</child_link>
+      <attach_topic>/grasp/paper/attach</attach_topic>
+      <detach_topic>/grasp/paper/detach</detach_topic>
+      <suppress_child_warning>true</suppress_child_warning>
+    </plugin>
+  </gazebo>
+</robot>

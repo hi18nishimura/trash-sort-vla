@@ -1,0 +1,7 @@
+# Trash sorting: 'workspace' is where trash rests; bins are place targets.
+# Positions MUST match worlds/trash_sort.sdf and benchmarks/scene_trash.py.
+surfaces:
+  - {id: workspace,  pose: [0.5,  0.0,  0.40,  1, 0, 0, 0], dims: [0.8,  0.8,  0.02], class: table}
+  - {id: bin_blue,   pose: [0.56, 0.13, 0.415, 1, 0, 0, 0], dims: [0.10, 0.10, 0.01], class: tray}
+  - {id: bin_green,  pose: [0.56, 0.0,  0.415, 1, 0, 0, 0], dims: [0.10, 0.10, 0.01], class: tray}
+  - {id: bin_orange, pose: [0.56, -0.13, 0.415, 1, 0, 0, 0], dims: [0.10, 0.10, 0.01], class: tray}
