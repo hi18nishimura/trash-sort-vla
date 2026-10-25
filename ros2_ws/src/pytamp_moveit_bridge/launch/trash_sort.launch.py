@@ -29,6 +29,8 @@ def _send_goal(context):
     """Send one sorting goal: put <item> into <bin>."""
     item = LaunchConfiguration("item").perform(context)
     bin_id = LaunchConfiguration("bin").perform(context)
+    if item == "none":
+        return []
     goal = json.dumps({"type": "place_class", "class": item, "surface": bin_id},
                       separators=(",", ":"))
     return [ExecuteProcess(cmd=["ros2", "topic", "pub", "--once", "/planning_goal",
@@ -53,8 +55,8 @@ def generate_launch_description():
     md["planning_pipelines"] = {"pipeline_names": ["ompl"]}
     md["ompl"] = {**md.get("ompl", {}), "plan_request_params": {
         "planning_pipeline": "ompl", "planner_id": "", "planning_time": 5.0,
-        "planning_attempts": 10, "max_velocity_scaling_factor": 1.0,
-        "max_acceleration_scaling_factor": 1.0}}
+        "planning_attempts": 10, "max_velocity_scaling_factor": 0.3,
+        "max_acceleration_scaling_factor": 0.3}}
     md["use_sim_time"] = True
 
     gz_launch = os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
@@ -124,7 +126,7 @@ def generate_launch_description():
         Node(package="pytamp_moveit_bridge", executable="moveit_executor.py",
              name="moveit_py", output="screen", parameters=[md],
              additional_env={"TAMP_EXECUTE": "1", "TAMP_START_CURRENT": "1",
-                             "TAMP_PICKPLACE": "1", "TAMP_DWELL": "0.0",
+                             "TAMP_PICKPLACE": "1", "TAMP_DWELL": "0.0", "TAMP_VEL_SCALE": "0.3",
                              "TAMP_SCENE_CONFIG": os.path.join(bridge, "config", "scene_trash.yaml")}),
         Node(package="pytamp_moveit_bridge", executable="tamp_planner_node.py",
              name="tamp_planner", output="screen", prefix=venv_py,

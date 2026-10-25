@@ -63,8 +63,8 @@ class MoveItExecutor(Node):
         self.plan_params.planning_pipeline = "ompl"
         self.plan_params.planning_time = 5.0
         self.plan_params.planning_attempts = 10
-        self.plan_params.max_velocity_scaling_factor = 1.0
-        self.plan_params.max_acceleration_scaling_factor = 1.0
+        self.plan_params.max_velocity_scaling_factor = float(os.environ.get("TAMP_VEL_SCALE", "1.0"))
+        self.plan_params.max_acceleration_scaling_factor = float(os.environ.get("TAMP_VEL_SCALE", "1.0"))
 
         self.dwell = float(os.environ.get("TAMP_DWELL", "3.0"))  # RViz dwell when not executing
         # RViz animates trajectories published here (MotionPlanning display).
