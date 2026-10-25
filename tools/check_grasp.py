@@ -5,6 +5,7 @@
   scan    : grid-scan one item's position -> map of where it can be picked & placed
 """
 import argparse
+import random
 import copy
 import logging
 import os
@@ -103,10 +104,37 @@ def cmd_scan(args):
         print(f"  {x:.3f} " + " ".join(line), flush=True)
 
 
+def cmd_jitter(args):
+    """Robustness: move each item randomly by up to +-radius (others stay), random bin."""
+    rng = random.Random(args.seed)
+    base = {o.object_id: tuple(getattr(o, _pose_attr(o)).position)
+            for o in scene_trash.make_world().objects}
+    items = [args.item] if args.item else list(ITEMS)
+    print(f"Jitter test: up to +-{args.radius * 100:.1f} cm, {args.n} trials per item, random bin\n")
+    for item in items:
+        oid = ITEMS[item]
+        bx, by, bz = base[oid]
+        if args.at:
+            bx, by = (float(v) for v in args.at.split(","))
+        ok = 0
+        for _ in range(args.n):
+            xyz = (bx + rng.uniform(-args.radius, args.radius),
+                   by + rng.uniform(-args.radius, args.radius), bz)
+            res, _ = solve(make_variant(oid, xyz=xyz), oid, rng.choice(BINS))
+            ok += bool(res.success)
+        print(f"  {item:7s} at ({bx:.3f}, {by:.3f}): {ok}/{args.n} = {100 * ok / args.n:.0f}%", flush=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="mode", required=True)
     sub.add_parser("combos")
+    p = sub.add_parser("jitter")
+    p.add_argument("--item", choices=ITEMS, default=None)
+    p.add_argument("--at", default=None, help="override base position, e.g. 0.48,-0.22")
+    p.add_argument("--radius", type=float, default=0.015)
+    p.add_argument("--n", type=int, default=12)
+    p.add_argument("--seed", type=int, default=0)
     p = sub.add_parser("isolate")
     p.add_argument("--item", default="bottle", choices=ITEMS)
     p.add_argument("--bin", default="bin_green", choices=BINS)
@@ -122,7 +150,7 @@ def main():
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO if getattr(args, "verbose", False) else logging.WARNING,
                         format="[%(name)s] %(message)s")
-    {"combos": cmd_combos, "isolate": cmd_isolate, "scan": cmd_scan}[args.mode](args)
+    {"combos": cmd_combos, "isolate": cmd_isolate, "scan": cmd_scan, "jitter": cmd_jitter}[args.mode](args)
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ def make_world() -> WorldState:
                       dimensions=(0.04, 0.04, 0.07))
     bottle = ObjectState("bottle_1", "bottle", Pose(position=(0.40, -0.10, 0.445)),
                          dimensions=(0.04, 0.04, 0.07))
-    paper = ObjectState("paper_1", "paper", Pose(position=(0.50, -0.22, 0.445)),
+    paper = ObjectState("paper_1", "paper", Pose(position=(0.48, -0.22, 0.445)),
                         dimensions=(0.04, 0.04, 0.07))
     return WorldState(objects=[can, bottle, paper],
                       surfaces=[workspace, bin_blue, bin_green, bin_orange])
