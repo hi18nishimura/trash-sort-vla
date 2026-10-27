@@ -35,14 +35,14 @@ def gz_set_pose(name, xyz):
            f'orientation: {{x: 0, y: 0, z: 0, w: 1}}')
     r = subprocess.run(["gz", "service", "-s", f"/world/{WORLD}/set_pose",
                         "--reqtype", "gz.msgs.Pose", "--reptype", "gz.msgs.Boolean",
-                        "--timeout", "3000", "--req", req], capture_output=True, text=True)
+                        "--timeout", "3000", "--req", req], capture_output=True, text=True, timeout=10)
     return "true" in r.stdout
 
 
 def gz_detach(name):
     """Force-break the DetachableJoint weld (same topic grasp_manager uses)."""
     subprocess.run(["gz", "topic", "-t", f"/grasp/{name}/detach", "-m", "gz.msgs.Empty", "-p", ""],
-                   capture_output=True, text=True)
+                   capture_output=True, text=True, timeout=10)
 
 
 def gz_model_pose(name):

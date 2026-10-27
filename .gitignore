@@ -52,3 +52,10 @@ docs/images/architecture_planning_stack.jpeg
 scripts/debug_*
 assets/
 .claude/
+*.npz
+*.parquet
+*.json
+*.png
+*.csv
+*.txt
+outputs/
