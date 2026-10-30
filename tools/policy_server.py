@@ -23,6 +23,8 @@ def main():
     ap.add_argument("--ckpt", required=True, help=".../checkpoints/<step|last>/pretrained_model")
     ap.add_argument("--port", type=int, default=6000)
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--normalizer", default="",
+                    help="LLM id for instruction normalisation, e.g. Qwen/Qwen2.5-1.5B-Instruct")
     ap.add_argument("--n-action-steps", type=int, default=10,
                     help="execute this many actions of each predicted chunk before re-predicting")
     args = ap.parse_args()
@@ -34,6 +36,11 @@ def main():
         policy.config, args.ckpt,
         preprocessor_overrides={"device_processor": {"device": args.device}})
     print(f"policy loaded from {args.ckpt} (n_action_steps={args.n_action_steps})", flush=True)
+    norm = None
+    if args.normalizer:
+        from normalizer import InstructionNormalizer
+        norm = InstructionNormalizer(args.normalizer, args.device)
+        print(f"normalizer loaded: {args.normalizer}", flush=True)
 
     listener = Listener(("127.0.0.1", args.port), authkey=b"trash-vla")
     print(f"listening on 127.0.0.1:{args.port}", flush=True)
@@ -43,6 +50,13 @@ def main():
         try:
             while True:
                 msg = conn.recv()
+                if msg["cmd"] == "normalize":
+                    if norm is None:
+                        conn.send({"canonical": msg["text"], "raw": "(no normalizer)"})
+                    else:
+                        canon, _, _, raw = norm.normalize(msg["text"])
+                        conn.send({"canonical": canon, "raw": raw})
+                    continue
                 if msg["cmd"] == "reset":
                     policy.reset()
                     conn.send({"ok": True})

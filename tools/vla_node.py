@@ -60,6 +60,7 @@ class VlaNode(Node):
         self.conn = Client(("127.0.0.1", port), authkey=b"trash-vla")
         self.lookahead = lookahead
         self.debounce = debounce
+        self.normalize = False       # set by --normalize: LLM rewrites the instruction first
         self.img = None
         self.q = None
         self.task = None
@@ -67,6 +68,7 @@ class VlaNode(Node):
         self.held = None
         self.pending = None          # (time, "grasp" | "release")
         self.grip_votes = 0          # consecutive predictions that disagree with the gripper state
+        self.steps_waiting = 0       # control ticks spent waiting for camera / joint states
         self.steps = 0
         self.create_subscription(Image, "/overhead_camera/image", self._on_img, 2)
         self.create_subscription(JointState, "/joint_states", self._on_js, 20)
@@ -100,6 +102,15 @@ class VlaNode(Node):
             self.pending = None
             self._status("stopped")
             return
+        if self.normalize:
+            self.conn.send({"cmd": "normalize", "text": text})
+            rep = self.conn.recv()
+            if rep["canonical"] is None:
+                self.task = None
+                self._status(f"rejected: {text}  (LLM: {rep['raw']})")
+                return
+            self._status(f"normalized: {text} -> {rep['canonical']}")
+            text = rep["canonical"]
         self.conn.send({"cmd": "reset"})
         self.conn.recv()
         self.task = text
@@ -169,7 +180,14 @@ class VlaNode(Node):
             kind = self.pending[1]
             self.pending = None
             self._grasp() if kind == "grasp" else self._release()
-        if self.task is None or self.img is None or self.q is None:
+        if self.task is None:
+            return
+        if self.img is None or self.q is None:
+            if self.steps_waiting % 50 == 0:   # every 5 s
+                self.get_logger().warn(
+                    f"waiting for inputs: camera={'ok' if self.img else 'MISSING'} "
+                    f"joints={'ok' if self.q else 'MISSING'}")
+            self.steps_waiting += 1
             return
         img, h, w = self.img
         self.conn.send({"cmd": "act", "image": img, "h": h, "w": w, "state": self.q, "task": self.task})
@@ -201,9 +219,11 @@ def main():
     ap.add_argument("--rate", type=float, default=10.0, help="control rate [Hz] (= dataset fps)")
     ap.add_argument("--lookahead", type=float, default=0.2, help="time to reach each target [s]")
     ap.add_argument("--debounce", type=int, default=5, help="steps before the gripper may switch")
+    ap.add_argument("--normalize", action="store_true", help="rewrite instructions with the LLM first")
     args = ap.parse_args()
     rclpy.init()
     node = VlaNode(args.port, args.rate, args.lookahead, args.debounce)
+    node.normalize = args.normalize
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

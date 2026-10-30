@@ -58,7 +58,10 @@ def max_jump(arm):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--raw", default=os.path.expanduser("~/projects/panda-tamp/data/raw"))
+    ap.add_argument("--raw", nargs="+", default=[os.path.expanduser("~/projects/panda-tamp/data/raw")],
+                    help="one or more raw folders; processed in the given order")
+    ap.add_argument("--repeat", type=int, nargs="+", default=None,
+                    help="how many times to use each --raw folder, e.g. 1 3")
     ap.add_argument("--root", default=os.path.expanduser("~/projects/panda-tamp/data/lerobot/trash_sort"))
     ap.add_argument("--repo-id", default="local/trash_sort")
     ap.add_argument("--smooth", type=int, default=5, help="median filter window [frames], odd")
@@ -72,7 +75,11 @@ def main():
     ap.add_argument("--phr-seed", type=int, default=0)
     args = ap.parse_args()
 
-    files = sorted(glob.glob(os.path.join(args.raw, "*.npz")))
+    repeats = args.repeat or [1] * len(args.raw)
+    assert len(repeats) == len(args.raw), "--repeat needs one number per --raw folder"
+    files = []
+    for raw_dir, rep_n in zip(args.raw, repeats):   # keep folder order (v2's episodes first)
+        files += sorted(glob.glob(os.path.join(raw_dir, "*.npz"))) * rep_n
     rows = []
     raw_joint = Counter()
     for f in files:

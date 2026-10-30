@@ -3,21 +3,28 @@
 Run with the SYSTEM python:
   python3 tools/eval_vla.py --trials 5                     # baseline condition
   python3 tools/eval_vla.py --trials 3 --layout swap       # items moved to each other's spots
-  python3 tools/eval_vla.py --trials 3 --radius 0.03       # larger position noise
   python3 tools/eval_vla.py --trials 3 --phrasing unseen   # paraphrases never seen in training
+Recording for the video:
+  python3 tools/eval_vla.py --trials 2 --only can:bin_blue --record outputs/rec/shot2 --tag v1
+  python3 tools/eval_vla.py --trials 2 --only can:bin_blue --text "缶を青い箱に入れて" --record ... --tag v1_llm
 Metrics:
   OK      : item released and resting in the instructed bin
   carried : item ended over the instructed bin, released or not (= the instruction was understood)
 """
 import argparse
+import json
 import os
 import random
 import sys
+import threading
 import time
 from collections import defaultdict
 
+import numpy as np
 import rclpy
+from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
+from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
@@ -37,6 +44,46 @@ LAYOUTS = {
 def over_bin(xyz, bin_id):
     bx, by = BINS[bin_id]
     return xyz is not None and abs(xyz[0] - bx) <= BIN_HALF and abs(xyz[1] - by) <= BIN_HALF and xyz[2] > 0.40
+
+
+def _to_np(msg):
+    a = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, 3)
+    return a[..., ::-1] if msg.encoding == "bgr8" else a
+
+
+class Recorder(Node):
+    """Records both cameras at 10 Hz in a background thread (never blocked by the evaluator)."""
+
+    def __init__(self):
+        super().__init__("vla_recorder")
+        self.latest = {"overhead": None, "showcase": None}
+        self.frames = {"overhead": [], "showcase": []}
+        self.active = False
+        self.lock = threading.Lock()
+        self.create_subscription(Image, "/overhead_camera/image", lambda m: self._on(m, "overhead"), 2)
+        self.create_subscription(Image, "/showcase_camera/image", lambda m: self._on(m, "showcase"), 2)
+        self.create_timer(0.1, self._tick)
+
+    def _on(self, msg, key):
+        if msg.encoding in ("rgb8", "bgr8"):
+            self.latest[key] = _to_np(msg)
+
+    def _tick(self):
+        with self.lock:
+            if self.active:
+                for k, v in self.latest.items():
+                    if v is not None:
+                        self.frames[k].append(v.copy())
+
+    def start(self):
+        with self.lock:
+            self.frames = {"overhead": [], "showcase": []}
+            self.active = True
+
+    def stop(self):
+        with self.lock:
+            self.active = False
+            return self.frames
 
 
 class Evaluator(Node):
@@ -99,13 +146,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--trials", type=int, default=3)
     ap.add_argument("--pairs", choices=["all", "train", "heldout"], default="all")
+    ap.add_argument("--only", action="append", default=None, help="item:bin, e.g. can:bin_blue (repeatable)")
     ap.add_argument("--timeout", type=float, default=45.0)
     ap.add_argument("--radius", type=float, default=0.015)
     ap.add_argument("--layout", choices=list(LAYOUTS), default="home")
     ap.add_argument("--phrasing", choices=["canonical", "unseen"], default="canonical")
+    ap.add_argument("--text", default=None, help="use this exact instruction (e.g. Japanese)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--record", default=None, help="folder to save camera frames of every episode")
+    ap.add_argument("--tag", default="model", help="model name written into recordings")
     args = ap.parse_args()
-    pairs = {"all": TRAIN_PAIRS + HELDOUT_PAIRS, "train": TRAIN_PAIRS, "heldout": HELDOUT_PAIRS}[args.pairs]
+    if args.only:
+        pairs = [tuple(p.split(":")) for p in args.only]
+    else:
+        pairs = {"all": TRAIN_PAIRS + HELDOUT_PAIRS, "train": TRAIN_PAIRS, "heldout": HELDOUT_PAIRS}[args.pairs]
     episodes = pairs * args.trials
     rng = random.Random(args.seed)
     rng.shuffle(episodes)
@@ -113,20 +167,42 @@ def main():
 
     rclpy.init()
     node = Evaluator()
+    rec = None
+    if args.record:
+        os.makedirs(args.record, exist_ok=True)
+        rec = Recorder()
+        ex = SingleThreadedExecutor()
+        ex.add_node(rec)
+        threading.Thread(target=ex.spin, daemon=True).start()
     node.spin_for(2.0)
     ok_res, carried_res = defaultdict(list), defaultdict(list)
     for n, (item, bin_id) in enumerate(episodes, 1):
-        text = phrasing.sample(item, bin_id, text_rng, args.phrasing)
+        text = args.text or phrasing.sample(item, bin_id, text_rng, args.phrasing)
         node.reset(rng, args.radius, LAYOUTS[args.layout])
+        if rec:
+            rec.start()
         ok, carried, xyz, dt, events = node.episode(item, bin_id, text, args.timeout)
+        verdict = "OK" if ok else ("C" if carried else "NG")
+        if rec:
+            node.spin_for(1.0)                          # a short tail after the episode
+            fr = rec.stop()
+            path = os.path.join(args.record, f"{args.tag}__{item}__{bin_id}__{args.layout}__{n:02d}__{verdict}.npz")
+            np.savez_compressed(
+                path,
+                overhead=np.stack(fr["overhead"]) if fr["overhead"] else np.zeros((0,)),
+                showcase=np.stack(fr["showcase"]) if fr["showcase"] else np.zeros((0,)),
+                instruction=np.array(text), tag=np.array(args.tag), result=np.array(verdict),
+                item=np.array(item), bin=np.array(bin_id), layout=np.array(args.layout),
+                events=np.array(json.dumps(events)))
+            print(f"        saved {path}  ({len(fr['overhead'])} overhead / {len(fr['showcase'])} showcase frames)",
+                  flush=True)
         ok_res[(item, bin_id)].append(ok)
         carried_res[(item, bin_id)].append(carried)
         tag = "train  " if (item, bin_id) in TRAIN_PAIRS else "HELDOUT"
-        verdict = "OK " if ok else ("C  " if carried else "NG ")
         pos = "None" if xyz is None else f"({xyz[0]:.3f}, {xyz[1]:.3f}, {xyz[2]:.3f})"
         grasped = sorted({e.split(":")[1] for e in events if e.startswith("grasp:")})
         released = any(e.startswith("release:") for e in events)
-        print(f"[{n:2d}/{len(episodes)}] {tag} {item:6s} -> {bin_id:10s}: {verdict} final={pos} ({dt:.0f}s) "
+        print(f"[{n:2d}/{len(episodes)}] {tag} {item:6s} -> {bin_id:10s}: {verdict:3s} final={pos} ({dt:.0f}s) "
               f"grasped={grasped} released={released}  \"{text}\"", flush=True)
 
     def rate(res, ps):

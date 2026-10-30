@@ -95,6 +95,8 @@ def generate_launch_description():
         Node(package="ros_gz_bridge", executable="parameter_bridge", output="screen",
              arguments=["/overhead_camera/image@sensor_msgs/msg/Image[gz.msgs.Image"]),
         Node(package="ros_gz_bridge", executable="parameter_bridge", output="screen",
+             arguments=["/showcase_camera/image@sensor_msgs/msg/Image[gz.msgs.Image"]),
+        Node(package="ros_gz_bridge", executable="parameter_bridge", output="screen",
              arguments=["/world/tabletop/pose/info@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V"],
              remappings=[("/world/tabletop/pose/info", "/model_poses")]),
 

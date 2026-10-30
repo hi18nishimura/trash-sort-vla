@@ -59,3 +59,15 @@ assets/
 *.csv
 *.txt
 outputs/
+
+# ===== trash-sort VLA project: large / generated files (not uploaded) =====
+data/
+outputs/
+*.npz
+*.mp4
+*.safetensors
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+.venv/
+__pycache__/
