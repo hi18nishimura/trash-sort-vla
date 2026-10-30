@@ -40,7 +40,7 @@ nl = [
 # Model Context Protocol server: expose the planner to any MCP client/agent.
 # `python -m tamp.mcp_server` (stdio).
 mcp = [
-    "mcp>=1.10",
+    "mcp>=1.10,<2",
 ]
 dev = [
     "pytest>=7.0",
